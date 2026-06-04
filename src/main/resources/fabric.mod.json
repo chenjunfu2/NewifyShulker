@@ -8,17 +8,11 @@
 		"chenjunfu2"
 	],
 	"contact": {
-		"homepage": "NULL",
 		"sources": "https://github.com/chenjunfu2/NewifyShulker"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/newifyshulker/icon.png",
 	"environment": "*",
-	"entrypoints": {
-		"main": [
-			"chenjunfu2.newifyshulker.NewifyShulker"
-		]
-	},
 	"mixins": [
 		"newifyshulker.mixins.json"
 	],
