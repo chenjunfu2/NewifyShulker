@@ -1,5 +1,5 @@
 # NewifyShulker
-**让用过的潜影盒和新的一样。**  
+<img src="src/main/resources/assets/newifyshulker/icon.png" width="16" height="16" alt="icon"> **让用过的潜影盒和新的一样。**  
 
 ## 兼容堆叠类模组
 本模组可与支持潜影盒堆叠的模组（例如 Carpet（服务端）或 Tweakeroo（仅客户端））一起使用，让用过的潜影盒能够与全新的潜影盒堆叠在一起。  
