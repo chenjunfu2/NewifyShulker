@@ -23,16 +23,16 @@ abstract class ShulkerBoxBlockMixin
 			target = "Lnet/minecraft/block/entity/BlockEntity;setStackNbt(Lnet/minecraft/item/ItemStack;)V"
 		)
 	)
-	private  void wrapSetStackNbt(BlockEntity instance, ItemStack stack, Operation<Void> original)
+	private void wrapSetStackNbt(BlockEntity instance, ItemStack stack, Operation<Void> original)//创造模式破坏带有物品的潜影盒
 	{
 		//添加物品
 		original.call(instance, stack);
 		
 		//添加后，内部会存在id段，主动删除
-		var nbt = stack.getNbt();
-		if(nbt != null && nbt.contains("BlockEntityTag", NbtElement.COMPOUND_TYPE))
+		var itemTag = stack.getNbt();
+		if(itemTag != null && itemTag.contains("BlockEntityTag", NbtElement.COMPOUND_TYPE))
 		{
-			nbt.getCompound("BlockEntityTag").remove("id");
+			itemTag.getCompound("BlockEntityTag").remove("id");
 		}
 		
 		//因为只有Items非空才会进来，所以不用处理空的情况
@@ -45,7 +45,7 @@ abstract class ShulkerBoxBlockMixin
 			value = "RETURN"
 		)
 	)
-	private List<ItemStack> modifyDroppedStacks(List<ItemStack> original)
+	private List<ItemStack> modifyDroppedStacks(List<ItemStack> original)//生存模式、方块、实体等破坏潜影盒
 	{
 		//确保不为空且仅含1个物品
 		if (original == null || original.size() != 1)
@@ -60,31 +60,31 @@ abstract class ShulkerBoxBlockMixin
 			return original;
 		}
 		
-		//获取掉落物的nbt
-		var nbt = item.getNbt();
+		//获取掉落物的itemTag
+		var itemTag = item.getNbt();
 		
 		//必须存在且类型正确
-		if(nbt == null || !nbt.contains("BlockEntityTag", NbtElement.COMPOUND_TYPE))
+		if(itemTag == null || !itemTag.contains("BlockEntityTag", NbtElement.COMPOUND_TYPE))
 		{
 			return original;
 		}
 		
 		//获取方块实体tag
-		var tag = nbt.getCompound("BlockEntityTag");
+		var tagBETag = itemTag.getCompound("BlockEntityTag");
 		
 		//首先移除id
-		tag.remove("id");
+		tagBETag.remove("id");
 		
 		//如果没有物品，那么移除物品
 		do
 		{
-			if (!tag.contains("Items", NbtElement.LIST_TYPE))
+			if (!tagBETag.contains("Items", NbtElement.LIST_TYPE))
 			{
 				break;
 			}
 			
 			//上面已经验证过，这里不可能返回null
-			var items = (NbtList)tag.get("Items");
+			var items = (NbtList)tagBETag.get("Items");
 			
 			//非空退出
 			if(!items.isEmpty())
@@ -93,14 +93,20 @@ abstract class ShulkerBoxBlockMixin
 			}
 			
 			//移除空物品段
-			tag.remove("Items");
+			tagBETag.remove("Items");
 		}while(false);
 		
 		
-		//如果移除后啥tag都没了，那么把tag也删除
-		if(tag.isEmpty())
+		//如果移除后啥tagBETag都没了，那么把BlockEntityTag也删除，不要留下空的BlockEntityTag
+		if(tagBETag.isEmpty())
 		{
-			nbt.remove("BlockEntityTag");
+			itemTag.remove("BlockEntityTag");
+		}
+		
+		//如果移除BlockEntityTag之后itemTag里啥都没了，那么把itemTag设为null，不要留下空（但是非null）的itemTag
+		if(itemTag.isEmpty())
+		{
+			item.setNbt(null);//需要设置item内部的itemTag，而不是单纯的赋值itemTag为null
 		}
 		
 		return original;
